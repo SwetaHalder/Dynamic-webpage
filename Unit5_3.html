@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Capstone — Dynamic Responsive Site</title>
+  <style>
+    *{box-sizing:border-box}
+    :root{
+      --bg:#f4f7fb; --card:#fff; --accent:#0f766e; --muted:#6b7280; --text:#0f1724;
+    }
+    [data-theme="dark"]{
+      --bg:#0f1724; --card:#0b1220; --accent:#2dd4bf; --muted:#94a3b8; --text:#e6eef6;
+    }
+    body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1100px;margin:18px auto;padding:16px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{font-weight:700;color:var(--accent)}
+    nav{display:flex;gap:8px;flex-wrap:wrap}
+    nav a{font-size:14px;color:var(--text);text-decoration:none;padding:8px;border-radius:6px}
+    .cta{background:var(--accent);color:#fff}
+
+    /* hero */
+    .hero{background:var(--card);border-radius:12px;padding:18px;margin-top:12px;box-shadow:0 8px 24px rgba(2,6,23,0.06);display:flex;flex-direction:column;gap:12px}
+    .hero h1{margin:0;font-size:1.25rem}
+    .controls{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
+    .btn.primary{background:var(--accent);color:#fff}
+    .btn.ghost{background:transparent;border:1px solid #dbe7ea}
+    .quote-card{background:var(--card);padding:12px;border-radius:10px;border:1px solid #e6eef6;margin-top:12px}
+    .quote-text{font-size:1rem;margin:0 0 10px}
+    .quote-author{font-size:0.85rem;color:var(--muted);margin:0}
+
+    /* features/projects */
+    .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}
+    .card{background:var(--card);padding:14px;border-radius:10px;border:1px solid #e6eef6}
+    .card h3{margin:0 0 6px}
+
+    /* project list controls */
+    .projects-controls{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+    input[type="text"]{padding:8px;border-radius:8px;border:1px solid #d1d5db;flex:1}
+
+    footer{text-align:center;color:var(--muted);margin-top:18px;font-size:14px}
+
+    /* responsiveness */
+    @media(min-width:800px){
+      .hero{flex-direction:row;align-items:center}
+      .hero .content{flex:1}
+      .hero .visual{width:320px;flex:0 0 320px}
+      .grid{grid-template-columns:repeat(3,1fr)}
+    }
+
+    /* micro interactions */
+    .fade{animation:fadeIn 320ms ease}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+    .small{font-size:0.85rem}
+    .muted{color:var(--muted)}
+  </style>
+</head>
+<body data-theme="light">
+  <div class="wrap">
+    <header>
+      <div class="brand">CapstoneDynamic</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <nav id="mainNav" aria-label="Main navigation"></nav>
+        <button id="themeBtn" class="btn ghost" aria-pressed="false">Dark</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="content">
+          <h1 id="hero-title">Dynamic Responsive Site — Capstone Starter</h1>
+          <p class="small muted">Mobile-first, dynamic content generated from JavaScript arrays and a public API.</p>
+
+          <div class="controls">
+            <button id="newQuoteBtn" class="btn primary">New Quote</button>
+            <button id="autoToggleBtn" class="btn ghost">Auto: On</button>
+            <button id="shuffleFeatures" class="btn ghost">Shuffle Features</button>
+          </div>
+
+          <div id="quoteCard" class="quote-card" aria-live="polite">
+            <p id="quoteText" class="quote-text">Press "New Quote" — quotes come from an API.</p>
+            <p id="quoteAuthor" class="quote-author"></p>
+          </div>
+        </div>
+
+        <div class="visual" aria-hidden="true">
+          <div style="width:90%;height:150px;border-radius:10px;background:linear-gradient(135deg,#eef2ff,#fff);display:flex;align-items:center;justify-content:center;border:1px solid #e6eef6">
+            <strong style="color:var(--accent)">Hero Visual</strong>
+          </div>
+        </div>
+      </section>
+
+      <section style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <h2 style="margin:0">Features & Projects</h2>
+          <div class="small muted">Manage projects below — saved to localStorage</div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:10px;flex-direction:column">
+          <div class="projects-controls">
+            <input id="projectInput" type="text" placeholder="Add project title (e.g. Todo App)" />
+            <button id="addProjectBtn" class="btn primary">Add Project</button>
+            <button id="clearProjectsBtn" class="btn ghost">Clear</button>
+          </div>
+
+          <div id="grid" class="grid" aria-live="polite"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>© Your Name • Dynamic demo</footer>
+  </div>
+
+  <script>
+    // -------------------- Data (dynamic) --------------------
+    const NAV_ITEMS = [
+      {text: 'Home', href:'#'},
+      {text: 'Projects', href:'#'},
+      {text: 'Blog', href:'#'},
+      {text: 'Contact', href:'#'}
+    ];
+
+    let FEATURES = [
+      {title:'Responsive', desc:'Mobile-first layout with CSS media queries.'},
+      {title:'Animations', desc:'Subtle animations for polish.'},
+      {title:'API Integration', desc:'Fetch data and update UI dynamically.'},
+      {title:'Local Storage', desc:'Save user projects locally in the browser.'},
+      {title:'Theme Toggle', desc:'Switch between light and dark themes.'},
+      {title:'Accessible', desc:'ARIA attributes and focusable controls.'}
+    ];
+
+    // Projects list (persisted)
+    const PROJECTS_KEY = 'capstone_projects_v1';
+    let projects = JSON.parse(localStorage.getItem(PROJECTS_KEY) || '[]');
+
+    // -------------------- Helpers --------------------
+    const $ = (sel) => document.querySelector(sel);
+    const createEl = (tag, attrs={}, children=[]) => {
+      const el = document.createElement(tag);
+      Object.entries(attrs).forEach(([k,v]) => { if(k === 'class') el.className = v; else if(k==='html') el.innerHTML = v; else el.setAttribute(k,v); });
+      children.forEach(c => el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
+      return el;
+    };
+
+    // -------------------- Render nav --------------------
+    function renderNav(){
+      const nav = $('#mainNav'); nav.innerHTML='';
+      NAV_ITEMS.forEach(item => {
+        const a = createEl('a', {href:item.href}, [document.createTextNode(item.text)]);
+        nav.appendChild(a);
+      });
+      // CTA
+      const cta = createEl('a', {href:'#', class:'cta'}, [document.createTextNode('Get Started')]);
+      nav.appendChild(cta);
+    }
+
+    // -------------------- Render grid (features + projects) --------------------
+    function renderGrid(){
+      const grid = $('#grid'); grid.innerHTML='';
+      // show first N features
+      const featuresToShow = FEATURES.slice(0,3);
+      featuresToShow.forEach(f => {
+        const card = createEl('section',{class:'card fade'},[]);
+        card.appendChild(createEl('h3',{},[document.createTextNode(f.title)]));
+        card.appendChild(createEl('p',{class:'small muted'},[document.createTextNode(f.desc)]));
+        grid.appendChild(card);
+      });
+
+      // then projects
+      if(projects.length === 0){
+        const p = createEl('div',{class:'card fade'},[createEl('p',{class:'small muted', html:'No projects yet. Add one above.'})]);
+        grid.appendChild(p);
+      } else {
+        projects.forEach((proj, idx) => {
+          const card = createEl('article',{class:'card fade'},[]);
+          card.appendChild(createEl('h3',{},[document.createTextNode(proj.title)]));
+          card.appendChild(createEl('p',{class:'small muted'},[document.createTextNode(proj.desc || 'User added project') ]));
+          const controls = createEl('div',{},[]);
+          const del = createEl('button',{class:'btn ghost', type:'button'},[document.createTextNode('Delete')]);
+          del.addEventListener('click', () => { deleteProject(idx); });
+          controls.appendChild(del);
+          card.appendChild(controls);
+          grid.appendChild(card);
+        });
+      }
+    }
+
+    // -------------------- Projects management --------------------
+    function saveProjects(){ localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects)); }
+    function addProject(title){ if(!title) return; projects.unshift({title, desc:'Added ' + new Date().toLocaleString()}); saveProjects(); renderGrid(); }
+    function deleteProject(i){ projects.splice(i,1); saveProjects(); renderGrid(); }
+    function clearProjects(){ projects = []; saveProjects(); renderGrid(); }
+
+    // -------------------- Features helpers --------------------
+    function shuffleFeatures(){
+      for(let i = FEATURES.length -1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); [FEATURES[i], FEATURES[j]] = [FEATURES[j], FEATURES[i]]; }
+      renderGrid();
+    }
+
+    // -------------------- Quote API --------------------
+    const QUOTE_API = 'https://api.quotable.io/random';
+    const newQuoteBtn = $('#newQuoteBtn');
+    const autoToggleBtn = $('#autoToggleBtn');
+    const quoteText = $('#quoteText');
+    const quoteAuthor = $('#quoteAuthor');
+
+    let autoOn = true; let timer = null;
+    async function fetchQuote(){
+      try{
+        newQuoteBtn.disabled = true; newQuoteBtn.textContent = 'Loading...';
+        const res = await fetch(QUOTE_API); if(!res.ok) throw new Error('Network');
+        const data = await res.json();
+        quoteText.textContent = data.content; quoteAuthor.textContent = '- ' + (data.author || 'Unknown');
+      }catch(err){ quoteText.textContent = 'Could not fetch quote.'; quoteAuthor.textContent=''; console.error(err);}finally{ newQuoteBtn.disabled=false; newQuoteBtn.textContent='New Quote'; }
+    }
+    function startAuto(){ fetchQuote(); timer = setInterval(fetchQuote, 6000); autoOn = true; autoToggleBtn.textContent='Auto: On'; }
+    function stopAuto(){ clearInterval(timer); timer=null; autoOn=false; autoToggleBtn.textContent='Auto: Off'; }
+
+    // -------------------- Theme --------------------
+    const themeBtn = $('#themeBtn');
+    function setTheme(t){ document.body.setAttribute('data-theme', t); localStorage.setItem('capstone_theme', t); themeBtn.textContent = t === 'dark' ? 'Light' : 'Dark'; themeBtn.setAttribute('aria-pressed', t === 'dark'); }
+    function toggleTheme(){ const cur = document.body.getAttribute('data-theme')==='dark' ? 'light' : 'dark'; setTheme(cur); }
+
+    // -------------------- Init & events --------------------
+    function init(){
+      renderNav(); renderGrid();
+      // attach events
+      newQuoteBtn.addEventListener('click', fetchQuote);
+      autoToggleBtn.addEventListener('click', () => { autoOn ? stopAuto() : startAuto(); });
+      document.getElementById('shuffleFeatures').addEventListener('click', shuffleFeatures);
+      document.getElementById('addProjectBtn').addEventListener('click', () => { const v = $('#projectInput').value.trim(); if(v){ addProject(v); $('#projectInput').value=''; } });
+      document.getElementById('clearProjectsBtn').addEventListener('click', () => { if(confirm('Clear all projects?')) clearProjects(); });
+      // theme
+      themeBtn.addEventListener('click', toggleTheme);
+      const savedTheme = localStorage.getItem('capstone_theme') || 'light'; setTheme(savedTheme);
+
+      // start auto quotes if enabled
+      startAuto();
+
+      // keyboard: allow Enter to add project
+      $('#projectInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('addProjectBtn').click(); } });
+    }
+
+    // run
+    init();
+  </script>
+</body>
+</html>
